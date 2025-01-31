@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import metrics
 from sklearn import tree
@@ -14,6 +15,7 @@ import pydotplus
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
 from sklearn.metrics import classification_report
 from math import sqrt
+import seaborn as sns
 
 
 df = pd.read_csv('Impact.csv')
@@ -58,52 +60,12 @@ X =df[['Age','Gender','Occupation','Usage','Delivery_Speed','Urgent_Needs','Shop
 y = df['Future_Reliance']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
-clf = DecisionTreeClassifier()
-clf = clf.fit(X_train,y_train)
-
-print("Metrics\n\n")
-y_pred = clf.predict(X_test)
-print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
-
-plt.figure(figsize=(16,9))
-plot_tree(clf,feature_names=X.columns,class_names=['Yes','Maybe','No'],filled=True,max_depth=3)
-plt.title('Decision tree')
-plt.show()
-
-conf_matrix = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(conf_matrix)
-
-precision = precision_score(y_test, y_pred, average='macro', zero_division=1)
-print(f"Precision (Macro): {precision}")
-
-sensitivity = recall_score(y_test, y_pred, average='macro')
-print(f"Sensitivity (Recall, Macro): {sensitivity}")
-
-TN = conf_matrix[0, 0]  # True Negatives
-FP = conf_matrix[0, 1]  # False Positives
-specificity = TN / (TN + FP)
-print(f"Specificity (for class 0): {specificity}")
-
-n = len(y_test)
-standard_error = sqrt((precision * (1 - precision)) / n)
-print(f"Standard Error of Precision: {standard_error}")
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
-
-y_prob = clf.predict_proba(X_test)[:, 1]  # Probabilities for class 1
-
-# ROC curve for binary classification
-fpr, tpr, thresholds = roc_curve(y_test, y_prob)
-roc_auc = auc(fpr, tpr)
-
-# Plot the ROC curve
-plt.figure(figsize=(8, 6))
-plt.plot(fpr, tpr, color='b', label=f'ROC curve (AUC = {roc_auc:.2f})')
-plt.plot([0, 1], [0, 1], 'k--', label='No Skill')
-plt.title('Receiver Operating Characteristic (ROC) Curve - Binary Classification')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.legend(loc='lower right')
+print("\nNaives Bayes\n")
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+sns.displot(df, x='Usage', hue='Future_Reliance', kind='kde', fill=True)
+sns.displot(df, x='Delivery_Speed', hue='Future_Reliance', kind='kde', fill=True)
 plt.show()
