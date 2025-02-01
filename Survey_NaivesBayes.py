@@ -18,7 +18,7 @@ from math import sqrt
 import seaborn as sns
 
 
-df = pd.read_csv('Impact.csv')
+df = pd.read_csv('responses.csv')
 df = df.drop(['Timestamp','Email Address','Name'],axis=1)
 
 def multi_column_one_hot_encoding(df, columns):
@@ -56,9 +56,10 @@ print(df.loc[0])
 X =df[['Age','Gender','Occupation','Usage','Delivery_Speed','Urgent_Needs','Shopping_Planning','Traditional_Shopping_Replacement',
        'Unplanned_Items','Price_Satisfaction','Life_Easier','Negative_Impact','Which_Platforms_Blinkit',
        'Which_Platforms_FilpkartMinutes','Which_Platforms_SwiggyInstamart','Which_Platforms_SwiggyInstamart','Which_Platforms_Zepto',
-       'Product_Categories_Groceries','Product_Categories_Householdessentials','Product_Categories_Others','Product_Categories_Snacksandbeverages']]
+       'Product_Categories_Groceries','Product_Categories_Householdessentials','Product_Categories_Others',
+       'Product_Categories_Snacksandbeverages']]
 y = df['Future_Reliance']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
 print("\nNaives Bayes\n")
 model = GaussianNB()
@@ -68,4 +69,5 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy: {accuracy * 100:.2f}%')
 sns.displot(df, x='Usage', hue='Future_Reliance', kind='kde', fill=True)
 sns.displot(df, x='Delivery_Speed', hue='Future_Reliance', kind='kde', fill=True)
+plt.legend(['Maybe', 'No', 'Yes'])
 plt.show()

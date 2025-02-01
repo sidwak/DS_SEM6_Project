@@ -6,9 +6,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import accuracy_score
 
-
-df = pd.read_csv('responses.csv')
+df = pd.read_csv('Impact.csv')
 df = df.drop(['Timestamp','Email Address','Name'],axis=1)
 
 def multi_column_one_hot_encoding(df, columns):
@@ -43,8 +43,8 @@ for col, encoder in encoders.items():
 print(df.head(10))
 print(df.loc[0])
 
-X = df[['Delivery_Speed']]
-y = df['Price_Satisfaction'] 
+X =df[['Price_Satisfaction']]
+y = df['Future_Reliance']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
 model = LinearRegression()
@@ -56,14 +56,13 @@ print(f"Intercept: {model.intercept_}") # intercept
 
 main_pred = model.predict(X_test)
 
-
 plt.figure(figsize=(8, 6))
 #sns.scatterplot(x='age', y='adiposity', data=df, color='blue', label='Data Points')
 plt.plot(X_test, main_pred, color='green', label='Regression Line')
 plt.plot(y_test, main_pred, color='red', label='Predicted Line')
 #sns.scatterplot(x='age', y='adiposity', data=pd.DataFrame({'age': age_pred, 'adiposity': y_pred}), color='orange', label='Data Points')
 plt.xlabel('Delivery_Speed')
-plt.ylabel('Price_Satisfaction')
+plt.ylabel('Future_Reliance')
 plt.title('Linear Regression: Price_Satisfaction vs Delivery_Speed')
 plt.legend()
 plt.show()

@@ -1,19 +1,17 @@
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import metrics
-from sklearn import tree
 from sklearn.tree import plot_tree
 from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
-import graphviz
-import pydotplus
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score
 from sklearn.metrics import classification_report
 from math import sqrt
+import seaborn as sns
 
 
 df = pd.read_csv('responses.csv')
@@ -58,36 +56,22 @@ X =df[['Age','Gender','Occupation','Usage','Delivery_Speed','Urgent_Needs','Shop
 y = df['Future_Reliance']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
-clf = DecisionTreeClassifier()
-clf = clf.fit(X_train,y_train)
+model = LogisticRegression()
+model.fit(X_train, y_train)
 
-print("Metrics\n\n")
-y_pred = clf.predict(X_test)
-print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: {:.2f}%".format(accuracy * 100))
 
-plt.figure(figsize=(16,9))
-plot_tree(clf,feature_names=X.columns,class_names=['Yes','Maybe','No'],filled=True,max_depth=3)
-plt.title('Decision tree')
+model_fi = permutation_importance(model, X, y)
+print(model_fi['importances_mean'])
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=X_test['Price_Satisfaction'], y=X_test['Delivery_Speed'], hue=y_test, palette={
+                0: 'blue', 1: 'red', 2: 'green'}, marker='o')
+plt.xlabel("Usage")
+plt.ylabel("Delivery_Speed")
+plt.title("Logistic Regression Decision Boundary\nAccuracy: {:.2f}%".format(
+    accuracy * 100))
+plt.legend(['Maybe', 'No', 'Yes'], title="Future_Reliance", loc="upper right")
 plt.show()
-
-conf_matrix = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(conf_matrix)
-
-precision = precision_score(y_test, y_pred, average='macro', zero_division=1)
-print(f"Precision (Macro): {precision}")
-
-sensitivity = recall_score(y_test, y_pred, average='macro')
-print(f"Sensitivity (Recall, Macro): {sensitivity}")
-
-TN = conf_matrix[0, 0]  # True Negatives
-FP = conf_matrix[0, 1]  # False Positives
-specificity = TN / (TN + FP)
-print(f"Specificity (for class 0): {specificity}")
-
-n = len(y_test)
-standard_error = sqrt((precision * (1 - precision)) / n)
-print(f"Standard Error of Precision: {standard_error}")
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))

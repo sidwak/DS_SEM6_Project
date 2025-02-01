@@ -13,7 +13,7 @@ from math import sqrt
 import seaborn as sns
 from sklearn.metrics import silhouette_score
 
-df = pd.read_csv('Impact.csv')
+df = pd.read_csv('responses.csv')
 df = df.drop(['Timestamp','Email Address','Name'],axis=1)
 
 def multi_column_one_hot_encoding(df, columns):
@@ -66,19 +66,21 @@ for k in range(1, 16):
     kmeans.fit(X)
     wss.append(kmeans.inertia_)
 
-kmeans = KMeans(n_clusters=8, random_state=42)
+kmeans = KMeans(n_clusters=4, random_state=42)
 kmeans.fit(X)
 df['kmeans_cluster'] = kmeans.labels_
+
+print(kmeans.labels_)
  
 plt.plot(range(1, 16), wss, marker='o')
 plt.xlabel('Number of clusters k')
 plt.ylabel('Total within-clusters sum of square')
 plt.show()
 
-plt.scatter(X['Delivery_Speed'], X['Price_Satisfaction'], c=kmeans.labels_, cmap='viridis')
+plt.scatter(X['Usage'], X['Traditional_Shopping_Replacement'], c=kmeans.labels_, cmap='viridis')
 plt.title('K-means Clustering')
-plt.xlabel('Delivery_Speed')
-plt.ylabel('Price_Satisfaction')
+plt.xlabel('Usage')
+plt.ylabel('Traditional_Shopping_Replacement')
 plt.show()
 
 silhouette_avg = silhouette_score(X, df['kmeans_cluster'])
